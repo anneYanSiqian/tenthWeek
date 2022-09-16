@@ -1,0 +1,87 @@
+class Node {
+    constructor (val=0) {
+        this.val = val;
+        this.right = null;
+        this.down = null;
+    }
+}
+var Skiplist = function() {
+    let range = n => [...Array(n).keys()]
+    let L = new Array(15).fill(new Node(0));
+    let R = new Array(15).fill(new Node(200001));
+    for (let i in range(15)) {
+        L[i].right = R[i]
+        L[i].down = L[i + 1]
+        R[i].down = R[i + 1]
+    }
+    this.head = L[0];
+};
+
+
+/** 
+ * @param {number} target
+ * @return {boolean}
+ */
+Skiplist.prototype.search = function(target) {
+    cur = this.head;
+    while (cur) {
+        if (cur.right.val > target) cur = cur.down;
+        else if (cur.right.val < target) cur = cur.right;
+        else return true;
+    }
+    return false;
+};
+
+/** 
+ * @param {number} num
+ * @return {void}
+ */
+Skiplist.prototype.add = function(num) {
+    cur = this.head;
+    const stack = [];
+    while (cur) {
+        if (cur.right.val >= num) {
+            stack.push(cur);
+            cur = cur.down;
+        } else {
+            cur = cur.right;
+        }
+    }
+    let pre = null;
+    while (stack.length) {
+        cur = stack.pop();
+        node = new Node(num);
+        node.right = cur.right;
+        cur.right = node;
+        if (pre) node.down = pre;
+        pre = node;
+        if (Math.floor(Math.random())) break;
+    }
+};
+
+/** 
+ * @param {number} num
+ * @return {boolean}
+ */
+Skiplist.prototype.erase = function(num) {
+    cur = this.head;
+    let should_remove = false;
+    while (cur) {
+        if (cur.right.val >= num) {
+            if (cur.right.val === num) {
+                should_remove = true;
+                cur.right = cur.right.right;
+            }
+            cur = cur.down;
+        } else cur = cur.right;
+    }
+    return should_remove;
+};
+
+/**
+ * Your Skiplist object will be instantiated and called as such:
+ * var obj = new Skiplist()
+ * var param_1 = obj.search(target)
+ * obj.add(num)
+ * var param_3 = obj.erase(num)
+ */
